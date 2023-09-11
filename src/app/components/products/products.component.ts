@@ -15,7 +15,18 @@ export class ProductsComponent implements OnInit {
   myShoppingCart: Product[] = [];
   total = 0;
   products: Product[] = [];
-  showProductDetail = false;
+  showProductDetail = false;//Estado del boton para mostar boton lateral
+  productChosen:Product={
+    id: '',
+    price: 0,
+    images: [],
+    title: '',
+    category: {
+      id:'',
+      name:'',
+    },
+    description: '',
+  }
 
   constructor(
     private storeService: StoreService,
@@ -37,7 +48,31 @@ export class ProductsComponent implements OnInit {
   }
 
   toggleProductDetail(){
+    console.log("activo");
+
     this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetail(id:string){//recibe del hijo
+    console.log(id);
+
+    this.productsService.getProduct(id)
+    .subscribe(data=>{
+        console.log('product',data);
+        this.toggleProductDetail();//permite que de acuerdo a la peticion del servicio se muestre
+        }
+      )
+
+  }
+
+  createNewProduct(){
+    const product={
+      title:'Nuevo Prod',
+      description:'bla bkla',
+      images:[''],
+
+    }
+    //this.productsService.createProduct();
   }
 
 }
