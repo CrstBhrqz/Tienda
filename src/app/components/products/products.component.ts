@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Product } from '../../models/product.model';
+import { Product, CreateProductDTO, UpdateProductDTO} from '../../models/product.model';
 
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
@@ -48,8 +48,6 @@ export class ProductsComponent implements OnInit {
   }
 
   toggleProductDetail(){
-    console.log("activo");
-
     this.showProductDetail = !this.showProductDetail;
   }
 
@@ -60,19 +58,41 @@ export class ProductsComponent implements OnInit {
     .subscribe(data=>{
         console.log('product',data);
         this.toggleProductDetail();//permite que de acuerdo a la peticion del servicio se muestre
+        this.productChosen = data;
         }
       )
 
   }
 
   createNewProduct(){
-    const product={
-      title:'Nuevo Prod',
-      description:'bla bkla',
-      images:[''],
-
+    const product:CreateProductDTO={
+      title: 'Nuevo Producto',
+      description: 'description',
+      images: [''],
+      price: 1000,
+      categoryId :2,
     }
-    //this.productsService.createProduct();
+    this.productsService.createProduct(product)
+    .subscribe(data =>{
+      console.log('esto producto se creo',data);
+      this.products.unshift(data)//ingrese el producto a la lista de productos
+    });
+  }
+
+  updateProduct(){
+    const changes:UpdateProductDTO={
+      title: 'Nuevo titulo del producto',
+      description: 'description',
+      categoryId :2,
+    }
+    console.log(this.productChosen);
+
+    const id = this.productChosen.id;
+    this.productsService.updateProduct(id, changes)
+    .subscribe(data => {
+      console.log('updateProduct',data);
+
+    });
   }
 
 }
