@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Product, CreateProductDTO, UpdateProductDTO} from '../../models/product.model';
+import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
 
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
@@ -28,6 +28,12 @@ export class ProductsComponent implements OnInit {
     description: '',
   }
 
+   //Para Paginacion
+
+   limitProducts=10;
+   offset=0; //donde comienza a paginar
+
+
   constructor(
     private storeService: StoreService,
     private productsService: ProductsService
@@ -36,10 +42,17 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productsService.getAllProducts()
+    // this.productsService.getAllProducts()///esto permite todos los productos
+    // .subscribe(data => {
+    //   this.products = data;
+    // });
+    //////Con Paginacion de productos
+
+    this.productsService.getProductsByPage(10,0)//trae dies
     .subscribe(data => {
       this.products = data;
     });
+
   }
 
   onAddToShoppingCart(product: Product) {
@@ -90,9 +103,34 @@ export class ProductsComponent implements OnInit {
     const id = this.productChosen.id;
     this.productsService.updateProduct(id, changes)
     .subscribe(data => {
+      const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
+      this.products[productIndex] = data;
       console.log('updateProduct',data);
 
     });
   }
+
+  deleteProduct(){
+    const id = this.productChosen.id;
+    this.productsService.delete(id).
+      subscribe(data => {
+        const productIndex = this.products.findIndex(item => item.id === this.productChosen.id);
+        this.products.slice(productIndex,1);
+        this.showProductDetail=false;
+        console.log(data)
+      });
+
+  }
+
+  loadMore() {//para cargar paginas
+
+    this.productsService.getProductsByPage(this.limitProducts,this.offset)//trae dies
+    .subscribe(data => {
+      this.products = data;
+    });
+
+
+  }
+
 
 }
