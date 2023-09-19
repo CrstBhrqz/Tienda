@@ -5,6 +5,7 @@ import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/produc
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
 
+
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
@@ -28,10 +29,11 @@ export class ProductsComponent implements OnInit {
     description: '',
   }
 
-   //Para Paginacion
+   //Para Paginacion o filtros
 
    limitProducts=10;
    offset=0; //donde comienza a paginar
+   statusDetail: 'loading' | 'success'  | 'error' | 'init' =  'init';
 
 
   constructor(
@@ -48,10 +50,7 @@ export class ProductsComponent implements OnInit {
     // });
     //////Con Paginacion de productos
 
-    this.productsService.getProductsByPage(10,0)//trae dies
-    .subscribe(data => {
-      this.products = data;
-    });
+    this. loadMore();
 
   }
 
@@ -65,15 +64,20 @@ export class ProductsComponent implements OnInit {
   }
 
   onShowDetail(id:string){//recibe del hijo
-    console.log(id);
-
+    this.statusDetail = 'loading'; //inicio de la peticion la cual esta cargando
+    this.toggleProductDetail();//permite que de acuerdo a la peticion del servicio se muestre
     this.productsService.getProduct(id)
-    .subscribe(data=>{
+    .subscribe(data=>{// respues exitosa
         console.log('product',data);
-        this.toggleProductDetail();//permite que de acuerdo a la peticion del servicio se muestre
         this.productChosen = data;
-        }
-      )
+        this.statusDetail ='success';// inidica la carga exitosa
+        console.log(this.statusDetail);
+      }, response =>{ // respuesta  con error
+        console.error(response.error.message);
+        this.statusDetail ='error';// indica el ERROR
+        console.log(this.statusDetail);
+
+      })
 
   }
 
@@ -123,10 +127,12 @@ export class ProductsComponent implements OnInit {
   }
 
   loadMore() {//para cargar paginas
+    console.log(this.offset);
 
     this.productsService.getProductsByPage(this.limitProducts,this.offset)//trae dies
     .subscribe(data => {
-      this.products = data;
+      this.products = this.products.concat(data);
+      this.offset += this.limitProducts;
     });
 
 

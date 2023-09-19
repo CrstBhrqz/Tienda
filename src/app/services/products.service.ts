@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { retry, catchError} from "rxjs/operators";
 
 import { Product,CreateProductDTO } from './../models/product.model';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,18 +18,39 @@ export class ProductsService {
     private http: HttpClient
   ) { }
 
-  getAllProducts() {
-    return this.http.get<Product[]>(this.apiUrl);
+  // getAllProducts() {                             // SOLO hacerlo estatico
+  //   return this.http.get<Product[]>(this.apiUrl);
+  // }
+
+  getAllProducts(limit?: number, offset?: number) {  // SOLO hacerlo dinamico
+    let params = new HttpParams();
+    if(limit && offset){
+      params = params.set('limit',limit);
+      params = params.set('offset',offset);
+
+    }
+    return this.http.get<Product[]>(this.apiUrl,{params})
+    .pipe(
+      retry(3)
+
+
+    )
   }
 
-  getProductsByPage(limit : number, offset : number){// para paginar productos
-    return this.http.get<Product[]>(this.apiUrl, {
+
+  getProductsByPage(limit : number, offset : number){// para paginar productos o filtros de acuerdo a un rango
+    return this.http.get<Product[]>(this.apiUrl, {//recibe un array de product
       params: {limit: limit, offset: offset} // envio de parametros
     });
   }
 
   getProduct(id:string){
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    return this.http.get<Product>(`${this.apiUrl}/${id}`)
+      // .pipe(
+      //   //catchError((error:HttpErrorResponse) => {
+
+      //   })
+      // )
 
   }
 
