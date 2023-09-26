@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { switchMap } from 'rxjs/operators';
 
 import { Product, CreateProductDTO, UpdateProductDTO } from '../../models/product.model';
 
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
+import { title } from 'process';
+import { zip } from 'rxjs';
 
 
 @Component({
@@ -44,11 +47,12 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.productsService.getAllProducts()///esto permite todos los productos
-    // .subscribe(data => {
-    //   this.products = data;
-    // });
-    //////Con Paginacion de productos
+    this.productsService.getAllProducts()///esto permite todos los productos
+    .subscribe(data => {
+      console.log(data);
+      ;
+    });
+    ////Con Paginacion de productos
 
     this. loadMore();
 
@@ -61,6 +65,31 @@ export class ProductsComponent implements OnInit {
 
   toggleProductDetail(){
     this.showProductDetail = !this.showProductDetail;
+  }
+
+
+  readAndUpdate(id:string){
+    this.productsService.getProduct(id)
+      .pipe(
+        switchMap((product) => this.productsService.updateProduct(product.id,{title:'change'}) // manejo de observable en cascada
+
+        )
+      ).subscribe(data =>{
+        console.log(data);//respuesta despues de las distintas peticiones
+
+      });
+      zip( // manejo de observable en paralelo
+        this.productsService.getProduct(id), // observador 1
+        this.productsService.updateProduct(id,{title:'change'}),  // observador 2
+      ).subscribe(
+        response =>
+          {
+            const read =response[0]  //respues de observador 1
+            const update=response[1] //respues de observador 2
+            console.log(read,update);
+
+          }
+      )
   }
 
   onShowDetail(id:string){//recibe del hijo

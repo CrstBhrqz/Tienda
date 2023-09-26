@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { retry, catchError} from "rxjs/operators";
+import { retry, catchError, map} from "rxjs/operators";
 
 import { Product,CreateProductDTO } from './../models/product.model';
 
@@ -31,9 +31,16 @@ export class ProductsService {
     }
     return this.http.get<Product[]>(this.apiUrl,{params})
     .pipe(
-      retry(3)
-
-
+      retry(3),// repite cuatro veces esta accion
+      map(Product => {
+        return Product.map(item =>{ // esta parte se encarga de asihar un valor a objecto en este caso en iva
+          return {
+            ...item,
+            taxes :0.19* item.price
+          }
+        })
+      }
+      )
     )
   }
 

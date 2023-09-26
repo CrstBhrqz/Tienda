@@ -18,7 +18,9 @@ export class ProductComponent {
       id:'',
       name:'',
     },
-    description: ''
+    description: '',
+    taxes:0,
+
   };
   @Output() addedProduct = new EventEmitter<Product>();
   @Output() showProduct = new EventEmitter<string>();//envia el producto
