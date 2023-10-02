@@ -47,8 +47,9 @@ export class NavComponent implements OnInit {
     console.log('token para enviar ', this.token);
 
     this.authService.profile(this.token)
-      .subscribe( profile =>{
-        console.log(profile);
+      .subscribe( user =>{
+        this.profile = user;
+        console.log(user);
 
       }
 
