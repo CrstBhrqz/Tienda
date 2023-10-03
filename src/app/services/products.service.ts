@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { retry, catchError, map} from "rxjs/operators";
 
 import { Product,CreateProductDTO } from './../models/product.model';
+import {  checkTime} from "../interceptors/time.interceptor"; // funcion que permite indicar el contexto para el interceptor
 
 
 @Injectable({
@@ -29,7 +30,7 @@ export class ProductsService {
       params = params.set('offset',offset);
 
     }
-    return this.http.get<Product[]>(this.apiUrl,{params})
+    return this.http.get<Product[]>(this.apiUrl,{params , context: checkTime()})
     .pipe(
       retry(3),// repite cuatro veces esta accion
       map(Product => {

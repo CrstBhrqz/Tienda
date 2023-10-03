@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 
-import { Product } from './models/product.model';
+import { Product, UpdateProductDTO } from './models/product.model';
 import { AuthService } from './services/auth.service';
 import { UsersService} from './services/users.service';
+import { FilesService } from './services/files.service';
 import { CreateUserDTO } from './models/user.model';
+
 
 @Component({
   selector: 'app-root',
@@ -14,10 +16,12 @@ export class AppComponent {
   imgParent = '';
   showImg = true;
   token: string = '';
+  imgRta='';
 
   constructor(
     private authService:AuthService,
-    private usersService:UsersService,){
+    private usersService:UsersService,
+    private filesService:FilesService,){
   }
 
 
@@ -61,5 +65,26 @@ export class AppComponent {
 
     )
   }
+
+  getFile(){// para descargar archivos con url
+
+    this.filesService.getFile('My Archivo.pdf','https://young-sands-07814.herokuapp.com/api/files/dummy.pdf','aplication/pdf')
+      .subscribe();
+  }
+
+  onUpLoad(event:Event){
+    const element = event.target as HTMLInputElement;
+    const file = element.files?.item(0) // toma el primer archivo sin son varios
+    if (file) {
+      this.filesService.UpLoadFile(file)
+      .subscribe(rta =>{
+        this.imgRta= rta.location;
+
+        })
+
+    }
+
+  }
+
 
 }
